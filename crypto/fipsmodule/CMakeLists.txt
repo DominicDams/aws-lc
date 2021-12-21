@@ -36,6 +36,14 @@ if(ARCH STREQUAL "x86_64")
 
   # Set the source directory for s2n-bignum assembly files
   set(S2N_BIGNUM_DIR ${PROJECT_SOURCE_DIR}/third_party/s2n-bignum/x86_att/p384)
+
+  # Set custom pure assembly sources
+  set(
+    LC_ASM_OPT_SOURCES
+
+    ec/asm/p384_select-x86_64.S
+  )
+
 endif()
 
 if(ARCH STREQUAL "x86")
@@ -197,6 +205,30 @@ function(cpreprocess dest src)
   )
 endfunction()
 
+if(LC_ASM_OPT_SOURCES)
+  # Our pure assembly files need to pass through the C preprocessor
+  # before they can be parsed by delocate.
+  foreach(asm ${LC_ASM_OPT_SOURCES})
+    cpreprocess(${asm}.S ${asm})
+    list(APPEND BCM_ASM_PROCESSED_SOURCES "${asm}.S")
+  endforeach()
+endif()
+if (LC_ASM_OPT_SOURCES AND UNIX AND NOT APPLE)
+
+  # Copy custom assembly files to the current binary dir
+  foreach(f ${LC_ASM_OPT_SOURCES})
+    file(COPY ${f} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  endforeach()
+
+  if(NOT FIPS_DELOCATE)
+    # If we don't have to use the delocate script then custom assembly files
+    # are simply added to BCM_ASM_SOURCES.
+    list(APPEND BCM_ASM_SOURCES ${LC_ASM_OPT_SOURCES})
+  endif()
+endif()
+
+
+
 if(FIPS_DELOCATE)
   if(FIPS_SHARED)
     error("Can't set both delocate and shared mode for FIPS build")
@@ -238,6 +270,7 @@ if(FIPS_DELOCATE)
       list(APPEND BCM_ASM_PROCESSED_SOURCES "${asm}.S")
     endforeach()
   endif()
+
 
   add_dependencies(bcm_c_generated_asm global_target)
 
@@ -316,6 +349,8 @@ elseif(FIPS_SHARED)
     bcm.c
 
     ${BCM_ASM_SOURCES}
+
+    ${LC_ASM_OPT_SOURCES}
   )
   target_compile_definitions(bcm_library PRIVATE BORINGSSL_IMPLEMENTATION)
 
@@ -380,6 +415,8 @@ else()
     fips_shared_support.c
 
     ${BCM_ASM_SOURCES}
+
+    ${LC_ASM_OPT_SOURCES}
   )
   target_compile_definitions(fipsmodule PRIVATE BORINGSSL_IMPLEMENTATION)
 

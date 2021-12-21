@@ -656,7 +656,34 @@ static void p384_felem_mul_scalar_rwnaf(int16_t *out, const unsigned char *in) {
 
 // fiat_p384_select_point selects the |idx|-th projective point from the given
 // precomputed table and copies it to |out| in constant time.
+//
+// If we have Linux x86_64 assembly available enable some
+// optimizations
+#if !defined(OPENSSL_NO_ASM) && defined(OPENSSL_LINUX) && \
+    defined(OPENSSL_X86_64)
+extern void fiat_p384_select_point_avx512(fiat_p384_felem out[3],
+                                   size_t idx,
+                                   fiat_p384_felem table[][3],
+                                   size_t table_size);
 static void fiat_p384_select_point(fiat_p384_felem out[3],
+                                   size_t idx,
+                                   fiat_p384_felem table[][3],
+                                   size_t table_size) {
+  if (OPENSSL_ia32cap_P[2] & (1 << 16)) { // Verify that AVX512 is enabled
+    fiat_p384_select_point_avx512(out, idx, table, table_size);
+  } else { // If we don't have AVX512 fallback to the default implementation
+    OPENSSL_memset(out, 0, sizeof(fiat_p384_felem) * 3);
+    for (size_t i = 0; i < table_size; i++) {
+      fiat_p384_limb_t mismatch = i ^ idx;
+      fiat_p384_cmovznz(out[0], mismatch, table[i][0], out[0]);
+      fiat_p384_cmovznz(out[1], mismatch, table[i][1], out[1]);
+      fiat_p384_cmovznz(out[2], mismatch, table[i][2], out[2]);
+    }
+  }
+}
+
+#else // No Linux x86_64 Assembly
+static void fiat_p384_select_point(fiat_p384_felem out[3],)
                                    size_t idx,
                                    fiat_p384_felem table[][3],
                                    size_t table_size) {
@@ -668,6 +695,7 @@ static void fiat_p384_select_point(fiat_p384_felem out[3],
     fiat_p384_cmovznz(out[2], mismatch, table[i][2], out[2]);
   }
 }
+#endif
 
 // fiat_p384_select_point_affine selects the |idx|-th affine point from
 // the given precomputed table and copies it to |out| in constant-time.
