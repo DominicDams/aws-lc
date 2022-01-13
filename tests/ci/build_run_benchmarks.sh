@@ -39,7 +39,7 @@ ninja -C "${PR_FOLDER_NAME}"/build
 
 # build FIPS compliant version of AWSLC pr
 mkdir "${PR_FOLDER_NAME}"/fips_build
-cmake -B"${PR_FOLDER_NAME}"/fips_build -H"${PR_FOLDER_NAME}" -GNinja -DFIPS=1 -DCMAKE_BUILD_TYPE=Release -DAWSLC_INSTALL_DIR="${AWSLC_PR_ROOT}" -DBUILD_SHARED_LIBS=ON
+cmake -B"${PR_FOLDER_NAME}"/fips_build -H"${PR_FOLDER_NAME}" -GNinja -DFIPS=1 -DCMAKE_BUILD_TYPE=Release -DAWSLC_INSTALL_DIR="${AWSLC_PR_ROOT}" -DBUILD_SHARED_LIBS=TRUE
 ninja -C "${PR_FOLDER_NAME}"/fips_build
 
 # build AWSLC prod
@@ -49,7 +49,7 @@ ninja -C aws-lc-prod/build
 
 #build FIPS compliant version of AWSLC prod
 mkdir aws-lc-prod/fips_build
-cmake -Baws-lc-prod/fips_build -Haws-lc-prod -GNinja -DFIPS=1 -DCMAKE_BUILD_TYPE=Release -DAWSLC_INSTALL_DIR="${AWSLC_PROD_ROOT}" -DBUILD_SHARED_LIBS=ON
+cmake -Baws-lc-prod/fips_build -Haws-lc-prod -GNinja -DFIPS=1 -DCMAKE_BUILD_TYPE=Release -DAWSLC_INSTALL_DIR="${AWSLC_PROD_ROOT}" -DBUILD_SHARED_LIBS=TRUE
 ninja -C aws-lc-prod/fips_build
 
 # avoid cpus 0-3 since there are a lot of other things running on them
