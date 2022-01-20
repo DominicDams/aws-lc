@@ -26,7 +26,7 @@ make install -C openssl
 
 # build BoringSSL
 mkdir boringssl/build
-cmake -Bboringssl/build -Hboringssl -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${AWSLC_PR_ROOT}" \
+cmake -Bboringssl/build -Hboringssl -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${BORINGSSL_ROOT}" \
 ninja -C boringssl/build
 
 # build AWSLC pr
