@@ -26,7 +26,7 @@ make install -C openssl
 
 # build BoringSSL
 mkdir boringssl/build
-cmake -Bboringssl/build -Hboringssl -GNinja -DCMAKE_BUILD_TYPE=Release
+cmake -Bboringssl/build -Hboringssl -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${AWSLC_PR_ROOT}" \
 ninja -C boringssl/build
 
 # build AWSLC pr
@@ -35,7 +35,7 @@ cmake -B"${PR_FOLDER_NAME}"/build -H"${PR_FOLDER_NAME}" -GNinja -DCMAKE_BUILD_TY
   -DCMAKE_INSTALL_PREFIX="${AWSLC_PR_ROOT}" \
   -DAWSLC_INSTALL_DIR="${AWSLC_PR_ROOT}" \
   -DBORINGSSL_INSTALL_DIR="${BORINGSSL_ROOT}" \
-  -DOPENSSL_INSTALL_DIR="${OPENSSL_ROOT}"
+  -DOPENSSL_INSTALL_DIR="${OPENSSL_ROOT}"/build
 ninja -C "${PR_FOLDER_NAME}"/build
 
 # build FIPS compliant version of AWSLC pr
