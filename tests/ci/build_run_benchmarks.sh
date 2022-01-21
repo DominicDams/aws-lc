@@ -26,6 +26,8 @@ make install -C openssl
 
 # build BoringSSL
 mkdir boringssl/build
+mkdir -f "${BORINGSSL_ROOT}"/build
+mkdir -f "${BORINGSSL_ROOT}"/ninja
 cmake -Bboringssl/build -Hboringssl -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${BORINGSSL_ROOT}" \
 ninja -C boringssl/build
 
