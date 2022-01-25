@@ -8,9 +8,9 @@ SHELL ["/bin/bash", "-c"]
 RUN set -ex && \
     apt-get update && \
     apt-get -y --no-install-recommends upgrade && \
-    apt-get -y --no-install-recommends install \
-    python3.8 \
-    python3-pip \
+    apt-get -y --no-install-recommends install && \
+    python3.8 && \
+    python3-pip && \
     make && \
     pip install pandas==1.2.5 && \
     pip install numpy==1.21.0 && \
